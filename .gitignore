@@ -1,0 +1,8 @@
+# Packages
+__pycache__ 
+
+
+*.txt
+venv
+.env 
+.idea 
