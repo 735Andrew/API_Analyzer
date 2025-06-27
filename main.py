@@ -2,6 +2,7 @@ import requests as r
 import json
 import rpm
 from typing import List, Dict, Set
+from cli import namespace
 
 
 def fetch_packages(url: str) -> List[Dict]:
@@ -51,23 +52,29 @@ def compare_packages_by_arch(
 
     for arch_name, packages in branch_1.items():
         if arch_name not in branch_2:
-            output_structure[arch_name][f"Unique_packages_of_{branch_1_name}"].extend(packages)
+            output_structure[arch_name][f"Unique_packages_of_{branch_1_name}"].extend(
+                packages
+            )
         else:
             unique_packages_branch_2 = {package_key(p) for p in branch_2[arch_name]}
             for package in packages:
                 if package_key(package) not in unique_packages_branch_2:
-                    output_structure[arch_name][f"Unique_packages_of_{branch_1_name}"].append(package)
-
+                    output_structure[arch_name][
+                        f"Unique_packages_of_{branch_1_name}"
+                    ].append(package)
 
     for arch_name, packages in branch_2.items():
         if arch_name not in branch_1:
-            output_structure[arch_name][f"Unique_packages_of_{branch_2_name}"].extend(packages)
+            output_structure[arch_name][f"Unique_packages_of_{branch_2_name}"].extend(
+                packages
+            )
         else:
             unique_packages_branch_1 = {package_key(p) for p in branch_1[arch_name]}
             for package in packages:
                 if package_key(package) not in unique_packages_branch_1:
-                    output_structure[arch_name][f"Unique_packages_of_{branch_2_name}"].append(package)
-
+                    output_structure[arch_name][
+                        f"Unique_packages_of_{branch_2_name}"
+                    ].append(package)
 
     for arch_name in architectures:
         if arch_name in branch_1 and arch_name in branch_2:
@@ -99,8 +106,8 @@ def compare_packages_by_arch(
 
 if __name__ == "__main__":
     try:
-        name_of_1_branch = "sisyphus"
-        name_of_2_branch = "p10"
+        name_of_1_branch = namespace.branches[0]
+        name_of_2_branch = namespace.branches[1]
 
         URL1 = f"https://rdb.altlinux.org/api/export/branch_binary_packages/{name_of_1_branch}"
         URL2 = f"https://rdb.altlinux.org/api/export/branch_binary_packages/{name_of_2_branch}"
@@ -124,8 +131,11 @@ if __name__ == "__main__":
             sorted_2_branch,
         )
 
-        with open("data.txt", "w") as f:
-            json.dump(report, f, indent=4)
+        if namespace.output == "terminal":
+            print(report, end="\n")
+        else:
+            with open(namespace.output, "w") as f:
+                json.dump(report, f, indent=4)
 
     except Exception as e:
-        print(f"En error: {e}")
+        print(f"An error: {e}")
