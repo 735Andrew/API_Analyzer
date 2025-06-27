@@ -40,8 +40,8 @@ def compare_packages_by_arch(
 
     output_structure = {
         arch: {
-            f"Unique_packages_of_{branch_1_name}": [],
             f"Unique_packages_of_{branch_2_name}": [],
+            f"Unique_packages_of_{branch_1_name}": [],
             f"Packages_with_newer_version_release_in_{branch_1_name}": [],
         }
         for arch in architectures
@@ -76,30 +76,30 @@ def compare_packages_by_arch(
                         f"Unique_packages_of_{branch_2_name}"
                     ].append(package)
 
-    for arch_name in architectures:
-        if arch_name in branch_1 and arch_name in branch_2:
-
-            branch_1_packages_by_name = {p["name"]: p for p in branch_1[arch_name]}
-            branch_2_packages_by_name = {p["name"]: p for p in branch_2[arch_name]}
-
-            common_package_names = (
-                set(branch_1_packages_by_name.keys()) &
-                set(branch_2_packages_by_name.keys())
-            )
-
-            for package_name in common_package_names:
-                package_1 = branch_1_packages_by_name[package_name]
-                package_2 = branch_2_packages_by_name[package_name]
-
-                comparison_result = rpm.verCompare(
-                    (package_1["name"], package_1["version"], package_1["release"]),
-                    (package_2["name"], package_2["version"], package_2["release"]),
-                )
-
-                if comparison_result > 0:
-                    output_structure[arch_name][
-                        f"Packages_with_newer_version_release_in_{branch_1_name}"
-                    ].append(package_1)
+    # for arch_name in architectures:
+    #     if arch_name in branch_1 and arch_name in branch_2:
+    #
+    #         branch_1_packages_by_name = {p["name"]: p for p in branch_1[arch_name]}
+    #         branch_2_packages_by_name = {p["name"]: p for p in branch_2[arch_name]}
+    #
+    #         common_package_names = (
+    #             set(branch_1_packages_by_name.keys()) &
+    #             set(branch_2_packages_by_name.keys())
+    #         )
+    #
+    #         for package_name in common_package_names:
+    #             package_1 = branch_1_packages_by_name[package_name]
+    #             package_2 = branch_2_packages_by_name[package_name]
+    #
+    #             comparison_result = rpm.verCompare(
+    #                 (package_1["name"], package_1["version"], package_1["release"]),
+    #                 (package_2["name"], package_2["version"], package_2["release"]),
+    #             )
+    #
+    #             if comparison_result > 0:
+    #                 output_structure[arch_name][
+    #                     f"Packages_with_newer_version_release_in_{branch_1_name}"
+    #                 ].append(package_1)
 
     return output_structure
 
