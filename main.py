@@ -83,7 +83,14 @@ def compare_packages_by_arch(
             text=True,
             check=True,
         )
-        return int(result.stdout.strip())
+        output = result.stdout.strip()
+
+        if "newer" in output:
+            return 1
+        elif "older" in output:
+            return -1
+        elif "same" in output:
+            return 0
 
     for arch_name in architectures:
         if arch_name in branch_1 and arch_name in branch_2:
