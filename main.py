@@ -1,8 +1,8 @@
 import requests as r
 import json
-import rpm
 from typing import List, Dict, Set
 from cli import namespace
+import subprocess
 
 
 def fetch_packages(url: str) -> List[Dict]:
@@ -76,6 +76,15 @@ def compare_packages_by_arch(
                         f"Unique_packages_of_{branch_2_name}"
                     ].append(package)
 
+    def compare_versions(version1, version2):
+        result = subprocess.run(
+            ["rpmdev-vercmp", version1, version2],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return int(result.stdout.strip())
+
     for arch_name in architectures:
         if arch_name in branch_1 and arch_name in branch_2:
 
@@ -90,10 +99,10 @@ def compare_packages_by_arch(
                 package_1 = branch_1_packages_by_name[package_name]
                 package_2 = branch_2_packages_by_name[package_name]
 
-                comparison_result = rpm.verCompare(
-                    (package_1["name"], package_1["version"], package_1["release"]),
-                    (package_2["name"], package_2["version"], package_2["release"]),
-                )
+                version1 = package_1["version"] + "-" + package_1["release"]
+                version2 = package_2["version"] + "-" + package_2["release"]
+
+                comparison_result = compare_versions(version1, version2)
 
                 if comparison_result > 0:
                     output_structure[arch_name][
