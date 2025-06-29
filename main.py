@@ -77,20 +77,29 @@ def compare_packages_by_arch(
                     ].append(package)
 
     def compare_versions(version1, version2):
-        result = subprocess.run(
-            ["rpmdev-vercmp", version1, version2],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        output = result.stdout.strip()
+        try:
+            result = subprocess.run(
+                ["rpmdev-vercmp", version1, version2],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            output = result.stdout.strip()
 
-        if "newer" in output:
-            return 1
-        elif "older" in output:
-            return -1
-        elif "same" in output:
-            return 0
+            if "newer" in output:
+                return 1
+            elif "older" in output:
+                return -1
+            elif "same" in output:
+                return 0
+            else:
+                print(f"Unexpected output rpmdev-vercmp: {output}")
+                return None
+        except subprocess.CalledProcessError as e:
+            print(f"Error with rpmdev-vercmp: {e.stderr}")
+            return None
+
+
 
     for arch_name in architectures:
         if arch_name in branch_1 and arch_name in branch_2:
