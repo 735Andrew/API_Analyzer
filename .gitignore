@@ -2,7 +2,10 @@
 __pycache__ 
 
 
-*.txt
 venv
 .env 
 .idea 
+
+
+*.txt
+!/requirements.txt
