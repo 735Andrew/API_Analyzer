@@ -84,7 +84,6 @@ def compare_packages_by_arch(
                 ["rpmdev-vercmp", version1, version2],
                 capture_output=True,
                 text=True,
-                check=True,
             )
             output = result.stdout.strip()
 
