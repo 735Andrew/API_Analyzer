@@ -76,7 +76,9 @@ def compare_packages_by_arch(
                         f"Unique_packages_of_{branch_2_name}"
                     ].append(package)
 
-    def compare_versions(version1, version2):
+    def compare_versions(version1, version2, cache={}):
+        if (version1, version2) in cache:
+            return cache[(version1, version2)]
         try:
             result = subprocess.run(
                 ["rpmdev-vercmp", version1, version2],
@@ -86,20 +88,22 @@ def compare_packages_by_arch(
             )
             output = result.stdout.strip()
 
-            if "newer" in output:
-                return 1
-            elif "older" in output:
-                return -1
-            elif "same" in output:
-                return 0
+            if version1 + " > " + version2 in output:
+                comparison_result = 1
+            elif version1 + " < " + version2 in output:
+                comparison_result = -1
+            elif version1 + " == " + version2 in output:
+                comparison_result = 0
             else:
-                print(f"Unexpected output rpmdev-vercmp: {output}")
-                return None
+                print(f"Unexpected output of rpmdev-vercmp: {output}")
+                comparison_result = None
+
+            cache[(version1, version2)] = comparison_result
+            return comparison_result
+
         except subprocess.CalledProcessError as e:
             print(f"Error with rpmdev-vercmp: {e.stderr}")
             return None
-
-
 
     for arch_name in architectures:
         if arch_name in branch_1 and arch_name in branch_2:
@@ -120,7 +124,7 @@ def compare_packages_by_arch(
 
                 comparison_result = compare_versions(version1, version2)
 
-                if comparison_result > 0:
+                if comparison_result is not None and comparison_result > 0:
                     output_structure[arch_name][
                         f"Packages_with_newer_version_release_in_{branch_1_name}"
                     ].append(package_1)
