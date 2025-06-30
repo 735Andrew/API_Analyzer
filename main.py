@@ -48,6 +48,7 @@ def compare_packages_by_arch(
     }
 
     def package_key(package: Dict) -> str:
+        # Unique package identifier for efficient lookup and comparison.
         return f"{package['name']}-{package['epoch']}-{package['version']}-{package['release']}--{package['arch']}"
 
     for arch_name, packages in branch_1.items():
@@ -78,6 +79,7 @@ def compare_packages_by_arch(
 
     def compare_versions(version1, version2, cache={}):
         if (version1, version2) in cache:
+            # Use cached result if available to avoid re-calculating
             return cache[(version1, version2)]
         try:
             result = subprocess.run(
@@ -118,6 +120,7 @@ def compare_packages_by_arch(
                 package_1 = branch_1_packages_by_name[package_name]
                 package_2 = branch_2_packages_by_name[package_name]
 
+                # Making structure suitable for rpmdev-vercmp comparison
                 version1 = package_1["version"] + "-" + package_1["release"]
                 version2 = package_2["version"] + "-" + package_2["release"]
 
